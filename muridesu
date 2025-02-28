@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>おとといきやがれは、無理です</title>
+    <style>
+        /* ベースとなるスタイル */
+        :root {
+            --main-color: #ff6ec7;
+            --secondary-color: #6e78ff;
+            --dark-color: #363062;
+            --light-color: #f5f5f5;
+            --accent-color: #ffde59;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+        
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('data:application/font-woff;charset=utf-8;base64,') format('woff');
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--light-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            background-image: linear-gradient(to bottom, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.8) 100%), url('/api/placeholder/1000/1000');
+            background-attachment: fixed;
+            background-size: cover;
+        }
+        
+        /* ヘッダースタイル */
+        header {
+            text-align: center;
+            padding: 2rem 1rem;
+            background-color: var(--main-color);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: linear-gradient(45deg, var(--secondary-color) 25%, transparent 25%, transparent 50%, var(--secondary-color) 50%, var(--secondary-color) 75%, transparent 75%, transparent);
+            background-size: 10px 10px;
+            opacity: 0.2;
+        }
+        
+        .site-title {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.2);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        
+        .site-subtitle {
+            font-size: 1rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+            font-style: italic;
+        }
+        
+        /* ナビゲーションスタイル */
+        nav {
+            background-color: var(--dark-color);
+            padding: 0.8rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        
+        nav ul {
+            display: flex;
+            justify-content: center;
+            list-style: none;
+            gap: 1.5rem;
+        }
+        
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            transition: all 0.3s;
+        }
+        
+        nav a:hover {
+            background-color: var(--accent-color);
+            color: var(--dark-color);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* メインコンテンツスタイル */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: 3fr 1fr;
+            gap: 2rem;
+        }
+        
+        /* 掲示板スタイル */
+        .board {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            position: relative;
+        }
+        
+        .board::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--main-color), var(--secondary-color));
+            border-radius: 10px 10px 0 0;
+        }
+        
+        .board-title {
+            font-size: 1.8rem;
+            margin-bottom: 1.5rem;
+            color: var(--dark-color);
+            border-bottom: 2px dashed var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+        
+        .post {
+            background-color: rgba(245, 245, 245, 0.8);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-left: 4px solid var(--main-color);
+        }
+        
+        .post:nth-child(even) {
+            border-left: 4px solid var(--secondary-color);
+        }
+        
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        .post-author {
+            font-weight: bold;
+            color: var(--dark-color);
+        }
+        
+        .post-content {
+            line-height: 1.6;
+        }
+        
+        .post-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            margin-top: 0.8rem;
+            font-size: 0.8rem;
+        }
+        
+        .post-footer button {
+            background: none;
+            border: none;
+            color: var(--secondary-color);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .post-footer button:hover {
+            color: var(--main-color);
+            transform: scale(1.1);
+        }
+        
+        .new-post {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .new-post h2 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--dark-color);
+        }
+        
+        .post-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .post-form input, 
+        .post-form textarea {
+            padding: 0.8rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: inherit;
+        }
+        
+        .post-form input:focus,
+        .post-form textarea:focus {
+            border-color: var(--secondary-color);
+            outline: none;
+            box-shadow: 0 0 8px rgba(110,120,255,0.3);
+        }
+        
+        .post-form button {
+            background: linear-gradient(45deg, var(--main-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .post-form button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        /* サイドバースタイル */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .widget {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .widget::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--main-color), var(--secondary-color));
+        }
+        
+        .widget h3 {
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            color: var(--dark-color);
+        }
+        
+        .members-list {
+            list-style: none;
+        }
+        
+        .member-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px dotted #ddd;
+        }
+        
+        .member-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .member-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            background-image: linear-gradient(45deg, var(--main-color), var(--secondary-color));
+        }
+        
+        .member-name {
+            font-weight: bold;
+        }
+        
+        .member-status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4CAF50;
+            margin-left: auto;
+        }
+        
+        .offline {
+            background-color: #ccc;
+        }
+        
+        .mood-tracker {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+        
+        .mood-options {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .mood-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: none;
+            background-color: #f0f0f0;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .mood-btn:hover {
+            transform: scale(1.2);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .mood-stats {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 0.8rem;
+            font-size: 0.9rem;
+        }
+        
+        .mood-bar {
+            height: 8px;
+            background-color: #eee;
+            border-radius: 4px;
+            margin-top: 0.3rem;
+            overflow: hidden;
+        }
+        
+        .mood-progress {
+            height: 100%;
+            width: 70%;
+            background: linear-gradient(90deg, var(--main-color), var(--secondary-color));
+            border-radius: 4px;
+        }
+        
+        .random-thought {
+            font-style: italic;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+        
+        .random-thought::before,
+        .random-thought::after {
+            content: '"';
+            font-size: 1.5rem;
+            color: var(--main-color);
+        }
+        
+        /* フッタースタイル */
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+            margin-top: 3rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer-quote {
+            font-style: italic;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+        
+        .copyright {
+            font-size: 0.9rem;
+            opacity: 0.6;
+            margin-top: 1rem;
+        }
+        
+        /* 特殊効果 */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px var(--main-color), 0 0 20px var(--main-color);
+            }
+            to {
+                text-shadow: 0 0 10px #fff, 0 0 20px #fff, 0 0 30px var(--secondary-color), 0 0 40px var(--secondary-color);
+            }
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, 0px); }
+        }
+        
+        .shooting-star {
+            position: absolute;
+            top: 20%;
+            left: 80%;
+            width: 100px;
+            height: 2px;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+            animation: shooting 5s linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes shooting {
+            0% {
+                transform: translateX(0) translateY(0) rotate(-45deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-500px) translateY(500px) rotate(-45deg);
+                opacity: 0;
+            }
+        }
+        
+        /* レスポンシブデザイン */
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            nav ul {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+            
+            .site-title {
+                font-size: 2rem;
+            }
+        }
+        
+        /* ダークモード */
+        .dark-mode {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--dark-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .dark-mode:hover {
+            transform: scale(1.1);
+        }
+        
+        body.dark {
+            background-color: #121212;
+            color: #f5f5f5;
+            background-image: linear-gradient(to bottom, rgba(18,18,18,0.8) 0%, rgba(18,18,18,0.8) 100%), url('/api/placeholder/1000/1000');
+        }
+        
+        body.dark .board,
+        body.dark .widget,
+        body.dark .new-post {
+            background-color: #1e1e1e;
+            color: #f5f5f5;
+        }
+        
+        body.dark .post {
+            background-color: rgba(30, 30, 30, 0.8);
+        }
+        
+        body.dark .board-title {
+            color: var(--light-color);
+        }
+        
+        body.dark .mood-stats {
+            background-color: #2a2a2a;
+        }
+        
+        body.dark .post-form input, 
+        body.dark .post-form textarea {
+            background-color: #2a2a2a;
+            color: #f5f5f5;
+            border-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 class="site-title">おとといきやがれは、無理です</h1>
+        <p class="site-subtitle">時間を超えて想いを結ぶ場所</p>
+        <div class="shooting-star"></div>
+    </header>
+    
+    <nav>
+        <ul>
+            <li><a href="#">ホーム</a></li>
+            <li><a href="#">メンバー</a></li>
+            <li><a href="#">思い出</a></li>
+            <li><a href="#">秘密の部屋</a></li>
+            <li><a href="#">ランダム</a></li>
+        </ul>
+    </nav>
+    
+    <div class="container">
+        <main>
+            <section class="board">
+                <h2 class="board-title">みんなの掲示板</h2>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <span class="post-author">ゆめこ</span>
+                        <span class="post-date">2025.02.28 - 22:15</span>
+                    </div>
+                    <div class="post-content">
+                        <p>今日は空がすごくきれいだった。写真撮ってみたけど、実物の美しさには敵わなかった。みんなにも見てほしかったな。</p>
+                    </div>
+                    <div class="post-footer">
+                        <button>♡ いいね (5)</button>
+                        <button>↪ 返信</button>
+                    </div>
+                </div>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <span class="post-author">ノスタルジック</span>
+                        <span class="post-date">2025.02.28 - 18:43</span>
+                    </div>
+                    <div class="post-content">
+                        <p>中学の時の写真を見つけた。あの頃の方が確実に幸せだったような気がする。時間って残酷だね。でも、懐かしくて温かい気持ちにもなった。矛盾してるけど、複雑な感じ。</p>
+                    </div>
+                    <div class="post-footer">
+                        <button>♡ いいね (8)</button>
+                        <button>↪ 返信</button>
+                    </div>
+                </div>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <span class="post-author">モモ</span>
+                        <span class="post-date">2025.02.27 - 14:22</span>
+                    </div>
+                    <div class="post-content">
+                        <p>新しい曲作ったよ。テーマは「昨日と明日の間に」。良かったら聴いてみて！<br>リンク: soundcloud.com/momo/yesterday-tomorrow</p>
+                    </div>
+                    <div class="post-footer">
+                        <button>♡ いいね (12)</button>
+                        <button>↪ 返信</button>
+                    </div>
+                </div>
+                
+                <div class="post">
+                    <div class="post-header">
+                        <span class="post-author">空色</span>
+                        <span class="post-date">2025.02.27 - 09:56</span>
+                    </div>
+                    <div class="post-content">
+                        <p>「おとといきやがれ」って言葉、最近使う人少なくなったよね。祖母がよく言ってた。懐かしい。日本語って美しい。</p>
+                    </div>
+                    <div class="post-footer">
+                        <button>♡ いいね (7)</button>
+                        <button>↪ 返信</button>
+                    </div>
+                </div>
+            </section>
+            
+            <section class="new-post">
+                <h2>新しい投稿を作成</h2>
+                <form class="post-form">
+                    <input type="text" placeholder="名前" required>
+                    <textarea placeholder="何を共有したい？" rows="4" required></textarea>
+                    <button type="submit">投稿する</button>
+                </form>
+            </section>
+        </main>
+        
+        <aside class="sidebar">
+            <div class="widget">
+                <h3>オンラインメンバー</h3>
+                <ul class="members-list">
+                    <li class="member-item">
+                        <div class="member-avatar">ゆ</div>
+                        <span class="member-name">ゆめこ</span>
+                        <span class="member-status"></span>
+                    </li>
+                    <li class="member-item">
+                        <div class="member-avatar">モ</div>
+                        <span class="member-name">モモ</span>
+                        <span class="member-status"></span>
+                    </li>
+                    <li class="member-item">
+                        <div class="member-avatar">空</div>
+                        <span class="member-name">空色</span>
+                        <span class="member-status offline"></span>
+                    </li>
+                    <li class="member-item">
+                        <div class="member-avatar">ノ</div>
+                        <span class="member-name">ノスタルジック</span>
+                        <span class="member-status"></span>
+                    </li>
+                </ul>
+            </div>
+            
+            <div class="widget">
+                <h3>今日の気分</h3>
+                <div class="mood-tracker">
+                    <div class="mood-options">
+                        <button class="mood-btn">😊</button>
+                        <button class="mood-btn">😢</button>
+                        <button class="mood-btn">😴</button>
+                        <button class="mood-btn">😡</button>
+                        <button class="mood-btn">🙂</button>
+                    </div>
+                    <div class="mood-stats">
+                        <span>グループの幸福度: 70%</span>
+                        <div class="mood-bar">
+                            <div class="mood-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="widget">
+                <h3>ランダムな想い</h3>
+                <p class="random-thought">どうして星を見上げると、心が穏やかになるんだろう。自分がどれだけ小さな存在なのかを知るから？それとも、同じ星空の下でつながっている人がいることを感じるから？</p>
+                <button style="margin-top: 1rem; background: none; border: none; color: var(--secondary-color); cursor: pointer; font-size: 0.9rem;">別の想いを表示</button>
+            </div>
+            
+            <div class="widget">
+                <h3>今日の一言</h3>
+                <p style="font-weight: bold; margin-bottom: 0.5rem;">「明日は明日の風が吹く」</p>
+                <p style="font-size: 0.9rem;">明日のことは明日考えよう。今この瞬間を大切に。</p>
+            </div>
+        </aside>
+    </div>
+    
+    <footer>
+        <div class="footer-content">
+            <p class="footer-quote">「過去は遠く、未来は近い。でも今日が一番大切。おとといきやがれは、無理です。」</p>
+            <p>このサイトは身内限定のコミュニティです。</p>
+            <p class="copyright">© 2025 おとといきやがれは、無理です</p>
+        </div>
+    </footer>
+    
+    <div class="dark-mode" onclick="document.body.classList.toggle('dark')">🌙</div>
+    
+    <script>
+        // ランダムな時間でシューティングスターを表示
+        function shootingStar() {
+            const star = document.querySelector('.shooting-star');
+            star.style.opacity = '0';
+            
+            setTimeout(() => {
+                // ランダムな位置に配置
+                star.style.top = Math.random() * 50 + '%';
+                star.style.left = Math.random() * 30 + 70 + '%';
+                star.style.opacity = '1';
+                
+                // アニメーション再生
+                star.style.animation = 'none';
+                setTimeout(() => {
+                    star.style.animation = 'shooting 5s linear';
+                }, 10);
+            }, Math.random() * 5000 + 5000);
+        }
+        
+        // 初期実行
+        shootingStar();
+        setInterval(shootingStar, 10000);
+        
+        // ランダムな想いボタン
+        const thoughts = [
+            "夢の中で見た風景が、現実よりも鮮明に感じることがある。記憶って不思議。",
+            "誰かを待つ時間は長く、楽しい時間は短い。時計の針は感情で動くのかも。",
+            "雨の音と窓ガラスの向こうのぼんやりした灯り。そんな夜が好き。",
+            "友達との別れは、いつも突然やってくる。もっと話したかった言葉がたくさんある。",
+            "目を閉じて聴く音楽は、目を開けて見る景色より、時々美しい。"
+        ];
+        
+        document.querySelector('.random-thought').nextElementSibling.addEventListener('click', function() {
+            const randomIndex = Math.floor(Math.random() * thoughts.length);
+            document.querySelector('.random-thought').textContent = thoughts[randomIndex];
+        });
+        
+        // 投稿フォームの送信イベント
+        document.querySelector('.post-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const nameInput = this.querySelector('input');
+            const messageInput = this.querySelector('textarea');
+            
+            if (nameInput.value.trim() && messageInput.value.trim()) {
+                const now = new Date();
+                const dateStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')} - ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                
+                const postHtml = `
+                <div class="post">
+                    <div class="post-header">
+                        <span class="post-author">${nameInput.value}</span>
+                        <span class="post-date">${dateStr}</span>
+                    </div>
+                    <div class="post-content">
+                        <p>${messageInput.value.replace(/\n/g, '<br>')}</p>
+                    </div>
+                    <div class="post-footer">
+                        <button>♡ いいね (0)</button>
+                        <button>↪ 返信</button>
+                    </div>
+                </div>
+                `;
+                
+                document.querySelector('.board').insertAdjacentHTML('afterbegin', postHtml);
+                
+                // フォームをリセット
+                nameInput.value = '';
+                messageInput.value = '';
+                
+                // いいねボタンのイベントを設定
+                document.querySelector('.post:first-child .post-footer button:first-child').addEventListener('click', function() {
+                    const text = this.textContent;
+                    const count = parseInt(text.match(/\d+/)[0]) + 1;
+                    this.textContent = `♡ いいね (${count})`;
+                });
+            }
+        });
+        
+        // いいねボタンのイベント設定
+        document.querySelectorAll('.post-footer button:first-child').forEach(button => {
+            button.addEventListener('click', function() {
+                const text = this.textContent;
+                const count = parseInt(text.match(/\d+/)[0]) + 1;
+                this.textContent = `♡ いいね (${count})`;
+            });
+        });
+        
+        // 気分ボタンのイベント設定
+        document.querySelectorAll('.mood-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                document.querySelectorAll('.mood-btn').forEach(b => b.style.transform = 'scale(1)');
+                this.style.transform = 'scale(1.3)';
+                
+                // ランダムな幸福度を更新
+                const happiness = Math.floor(Math.random() * 30) + 50;
+                document.querySelector('.mood-stats span').textContent = `グループの幸福度: ${happiness}%`;
+                document.querySelector('.mood-progress').style.width = `${happiness}%`;
+            });
+        });
+    </script>
+</body>
+</html>
